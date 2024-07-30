@@ -1,0 +1,341 @@
+<Gerenciador>:
+    Menu: 
+        name: 'menu'
+    NovaTurma:
+        name: 'NovaTurma'
+    Consultar:
+        name: 'Consultar'
+    Editar:
+        name: 'Editar'
+    Editar_Turma:
+        name: 'EditarTurma'
+    Editar_Aluno:
+        name: 'EditarAluno' 
+    AddNotas:
+        name: 'AddNotas'
+<Menu>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 150
+        spacing: 20
+        canvas:
+            Color:
+                rgba: 1,1,1,1
+            Rectangle:
+                size: self.size
+                pos: self.pos
+                source: 'Menu.png'
+        Label:
+            text: "MENU PRINCIPAL"
+            font_size: 40
+            color: 0,0,0,1
+        Botao:
+            text: 'Nova Turma'
+            color: 0,0,0,1
+            cor: 0.3,0.7,0.3,1
+            size_hint_y: None
+            height: 70
+            font_size:30
+            on_release: app.root.current = 'NovaTurma'
+        Botao:
+            text: 'Consultar'
+            color: 0,0,0,1
+            cor: 0.3,0.7,0.3,1
+            size_hint_y: None
+            height: 70
+            font_size:30
+            on_release: app.root.current = 'Consultar'
+        Botao:
+            text: 'Editar'
+            color: 0,0,0,1
+            cor: 0.3,0.7,0.3,1
+            size_hint_y: None
+            height: 70
+            font_size:30
+            on_release: app.root.current = 'Editar'
+        Botao:
+            text: 'Adicionar Notas'
+            color: 0,0,0,1
+            cor: 0.3,0.7,0.3,1
+            size_hint_y: None
+            height: 70
+            font_size:30
+            on_release: app.root.current = 'AddNotas'
+        Botao:
+            text: 'Excluir Turma'
+            color: 0,0,0,1
+            cor: 0.3,0.7,0.3,1
+            size_hint_y: None
+            height: 70
+            font_size:30
+        Botao:
+            text: 'Encerrar Programa'
+            color: 0,0,0,1
+            cor: 0.3,0.7,0.3,1
+            size_hint_y: None
+            height: 70
+            font_size:30
+            on_release: app.estop()
+<NovaTurma>:
+    BoxLayout:
+        orientation: 'vertical'
+        canvas:
+            Color:
+                rgba: 1,1,1,1
+            Rectangle:
+                size: self.size
+                pos: self.pos
+                source: 'logoPET.png'
+        BotaoVoltar:
+            size_hint: None,None
+            size: 200,50
+            img: 'Voltar.png'
+            on_release: app.root.current = 'menu'
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 60,0,60,130
+            spacing: 50
+            BoxLayout:
+                TextInput:
+                    id: Turma
+                    hint_text: 'Digite o Nome da turma'
+                    font_size: 30
+                    multiline: False
+                    on_text_validate: root.on_enter(self)
+                    size_hint_y: None
+                    height: 60
+                BotaoVoltar:
+                    id: enviar1
+                    img: 'Enviar.png'
+                    size_hint: None, None
+                    size: 80,60
+                    on_press: root.CriarTurma()
+            BoxLayout:
+                TextInput:
+                    id: alunos
+                    hint_text: 'Digite o número de alunos'
+                    font_size: 30
+                    multiline: False
+                    on_text_validate: root.on_enter(self)
+                    size_hint_y: None
+                    height: 60
+                BotaoVoltar:
+                    id: enviar2
+                    img: 'Enviar.png'
+                    size_hint: None, None
+                    size: 80,60
+                    on_press: root.CriarTurma()
+            BoxLayout:
+                TextInput:
+                    id: nomes
+                    hint_text: 'Digite o nome do 1° aluno da chamada'
+                    font_size: 30
+                    multiline: False
+                    size_hint_y: None
+                    height: 60
+                BotaoVoltar:
+                    id: enviar3
+                    img: 'Enviar.png'
+                    size_hint: None, None
+                    size: 80,60
+                    on_press: root.Alunos()
+            Botao:
+                text: 'Cadastrar outra turma'
+                color: 0,0,0,1
+                cor: 0.3,0.7,0.3,1
+                size_hint_y: None
+                height: 70
+                font_size:30  
+                on_release: root.Consultar_Outra_Turma()
+<Consultar>:
+    BoxLayout:
+        orientation: 'vertical'
+        canvas:
+            Color:
+                rgba: 1,1,1,1
+            Rectangle: 
+                size: self.size
+                pos: self.pos
+                source: 'logoPET.png'
+        BotaoVoltar:
+            size_hint: None,None
+            size: 200,50
+            img: 'Voltar.png'
+            on_release: app.root.current = 'menu'
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 60,40,60,200
+            spacing: 20
+            BoxLayout:         
+                size_hint_y:None
+                height: 60
+                TextInput:
+                    id: consulta_turma
+                    hint_text: 'Digite o nome da turma'
+                    font_size: 30
+                    multiline: False
+                    pos_hint: {'center_x': 0.5,'center_y': 0.1}
+                BotaoVoltar: 
+                    id: enviar4
+                    img: 'Enviar.png'
+                    size_hint: None, None
+                    size: 80,60
+                    on_press: root.Mostrar()
+                    pos_hint: {'center_x': 0.5,'center_y': 0.1}
+            BoxLayout:
+                id: box_secundario
+                size_hint_y:None
+                height: 60
+            ScrollView:
+                BoxLayout:
+                    canvas:
+                        Color:
+                            rgba: 0.1,0.2,0.3,1
+                        Rectangle:
+                            size:self.size
+                            pos:self.pos
+                    id: box 
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: self.minimum_height
+                    pos_hint: {'center_x': 0.5,'center_y': 0.8}
+            Botao:
+                text: 'Consultar outra turma'
+                color: 0,0,0,1
+                cor: 0.3,0.7,0.3,1
+                font_size: 30
+                size_hint_y: None
+                height: 60
+                on_release: root.Consultar_Nova_turma()
+<Editar>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 20
+        canvas: 
+            Color:
+                rgba: 1,1,1,1
+            Rectangle: 
+                size: self.size
+                pos: self.pos
+                source: 'logoPET.png'
+        BotaoVoltar:
+            size_hint: None,None
+            size: 200,50
+            img: 'Voltar.png'
+            on_release: app.root.current = 'menu'
+        BoxLayout: 
+            size_hint_y: None
+            height: 60
+            padding: 60,0,60,0
+            TextInput:
+                id: nome_turma
+                hint_text: 'Digite o nome da turma'
+                size_hint_y: None
+                multiline: False
+                height: 60
+                font_size: 30
+                pos_hint: {'center_x': 0.5,'center_y': 0.5}
+        BoxLayout:
+            padding:60,0,60,0
+            spacing: 50
+            Botao:
+                text: 'Editar nome da turma' 
+                color: 0,0,0,1
+                cor: 0.3,0.7,0.3,1
+                size_hint: 0.3, None
+                height: 60
+                font_size: 20
+                pos_hint: {'center_x': 0.0,'center_y': 0.95}
+                on_release: root.EditarTurma()
+            Botao:
+                text: 'Editar nome do aluno'
+                color: 0,0,0,1
+                cor: 0.3,0.7,0.3,1
+                size_hint: 0.3, None
+                height: 60
+                font_size: 20
+                pos_hint: {'center_x': 0.0,'center_y': 0.95}
+                on_release: root.Editar_nome_aluno()
+            Botao:
+                text: 'Editar notas'
+                color: 0,0,0,1
+                cor: 0.3,0.7,0.3,1
+                size_hint: 0.3, None
+                height: 60
+                font_size: 20
+                pos_hint: {'center_x': 0.0,'center_y': 0.95}
+        BoxLayout:
+            padding: 60,0,60,0
+            id: nome_novo
+<AddNotas>:
+    BoxLayout:
+        padding: 0,0,0,200
+        orientation: 'vertical'
+        canvas: 
+            Color:
+                rgba: 1,1,1,1
+            Rectangle: 
+                size: self.size
+                pos: self.pos
+                source: 'logoPET.png' 
+        BoxLayout:
+            padding: 20,20,0,0  
+            size_hint_y: None
+            height:150  
+            BotaoVoltar:
+                img: 'Voltar.png'
+                size_hint: None, None
+                size: 200,60
+                pos_hint: {'center_x': 0.5,'center_y': 0.9}
+                on_release: app.root.current = 'menu'
+        BoxLayout:
+            id: addnotas
+            orientation: 'vertical'
+            spacing: 100
+            BoxLayout:
+                padding: 60,0,60,0
+                size_hint_y:
+                height: 60
+                TextInput:
+                    id: notas_turma
+                    hint_text: 'Digite o nome da turma'
+                    multiline: False
+                    size_hint_y: None
+                    height: 60
+                    font_size: 30
+                BotaoVoltar:
+                    id: enviarturma
+                    img: 'Enviar.png'
+                    size_hint: None,None
+                    size: 80,60
+                    on_release: root.VerificaTurma()
+            BoxLayout:
+                padding: 60,0,60,0
+                TextInput:
+                    id: bimestre
+                    hint_text: 'Digite o bimestre'
+                    multiline: False
+                    size_hint_y:None
+                    height: 60
+                    font_size:30
+                BotaoVoltar:
+                    id: enviarbimestre
+                    img: 'Enviar.png'
+                    size_hint: None,None
+                    size: 80,60
+                    on_release: root.VerificaBimestre()
+            BoxLayout:
+                padding: 60,0,60,0
+                TextInput:
+                    id: number_question
+                    hint_text: 'Digite o número de questões da prova'
+                    multiline: False
+                    size_hint_y:None
+                    height: 60
+                    font_size:30
+                BotaoVoltar:
+                    id: enviarquestao
+                    img: 'Enviar.png'
+                    size_hint: None,None
+                    size: 80,60
+                    on_release: root.VerificaQuestao()
