@@ -213,7 +213,7 @@ class Consultar(Screen):
                     color=[1, 1, 1, 1],
                     pos=(0, 0),
                     size_hint=(1, None),
-                    size=(x, 60))
+                    size=(self.x, 60))
                 self.ids.box.add_widget(label)
         else:
             self.ids.box_secundario.add_widget(Label(
