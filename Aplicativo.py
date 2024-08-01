@@ -238,8 +238,8 @@ class Consultar(Screen):
 
 
 class Editar(Screen):
-    def init(self, **kwargs):
-        super().init(**kwargs)
+    def _init_(self, **kwargs):
+        super()._init_(**kwargs)
 
     def EditarTurma(self):
         self.nome_antigo = self.ids.nome_turma.text + '.txt'
@@ -250,8 +250,8 @@ class Editar(Screen):
         for child in self.ids.nome_novo.children:
             if isinstance(child, BotaoVoltar):
                 self.ids.nome_novo.remove_widget(self.boxtext)
-                self.ids.nome_novo.remove_widget(self.botaoenviar1)
-        self.botaoenviar1 = BotaoVoltar(size_hint=(None, None),
+                self.ids.nome_novo.remove_widget(self.botaoenviar)
+        self.botaoenviar = BotaoVoltar(size_hint=(None, None),
                                        size=(80, 60),
                                        img='Enviar.png',
                                        pos_hint={'center_x': 0.0, 'center_y': 1})
@@ -262,53 +262,17 @@ class Editar(Screen):
                                  multiline=False,
                                  pos_hint={'center_x': 0.0, 'center_y': 1})
         self.ids.nome_novo.add_widget(self.boxtext)
-        self.ids.nome_novo.add_widget(self.botaoenviar1)
-        self.botaoenviar1.bind(on_release=self.on_button_release)
+        self.ids.nome_novo.add_widget(self.botaoenviar)
+        self.botaoenviar.bind(on_release=self.on_button_release)
         self.boxtext.focus = True
         Window.bind(on_keyboard=self.confirma)
 
-    def AddWidgetaluno(self):
-        for child in self.ids.nome_novo.children:
-            if isinstance(child, BotaoVoltar):
-                self.ids.nome_novo.remove_widget(self.boxtext2)
-                self.ids.nome_novo.remove_widget(self.botaoenviar1)
-        self.box = BoxLayout(orientation='vertical', padding=(60, 60, 60, 500))
-        self.botaoenviar1 = BotaoVoltar(size_hint=(None, None),
-                                        size=(80, 60),
-                                        img='Enviar.png',
-                                        pos_hint={'center_x': 0.0, 'center_y': 1})
-        self.boxtext2 = TextInput(hint_text='Digite o novo nome da turma',
-                                  font_size=30,
-                                  size_hint=(1, None),
-                                  size=(0, 60),
-                                  multiline=False,
-                                  padding=(60, 60, 60, 60),
-                                  pos_hint={'center_x': 0.0, 'center_y': 1})
-        self.box.add_widget(self.botaoenviar1)
-        self.box.add_widget(self.boxtext2)
-        self.botaoenviar1.bind(on_release=self.on_button_release)
-        self.boxtext2.focus = True
-        Window.bind(on_keyboard=self.confirma)
-
-        self.botaoenviar3 = BotaoVoltar(size_hint=(None, None),
-                                        size=(80, 60),
-                                        img='Enviar.png',
-                                        pos_hint={'center_x': 0.0, 'center_y': 1})
-        self.boxtext4 = TextInput(hint_text='Digite o novo nome da turma',
-                                  font_size=30,
-                                  size_hint=(1, None),
-                                  size=(0, 60),
-                                  multiline=False,
-                                  pos_hint={'center_x': 0.0, 'center_y': 1})
-        self.ids.nome_novo.add_widget(self.boxtext4)
-        self.ids.nome_novo.add_widget(self.botaoenviar3)
-        self.botaoenviar3.bind(on_release=self.on_button_release)
-        self.boxtext4.focus = True
-        Window.bind(on_keyboard=self.confirma)
-
     def on_button_release(self, instance):
-        nome_novo = self.boxtext.text+'.txt'
-        os.rename(self.nome_antigo, nome_novo)
+        nome_novo = self.boxtext.text + '.txt'
+        if self.nome_antigo and nome_novo:
+            if os.path.isfile(self.nome_antigo):
+                os.rename(self.nome_antigo, nome_novo)
+                self.turma_salva = nome_novo
 
     def confirma(self, window, key, *args):
         if key == 13:
@@ -325,24 +289,56 @@ class Editar(Screen):
     def on_pre_leave(self):
         for child in self.ids.nome_novo.children:
             if isinstance(child, BotaoVoltar):
-                self.botaoenviar.unbind(on_release=self.on_button_release)
-                self.ids.nome_novo.remove_widget(self.boxtext)
-                self.ids.nome_novo.remove_widget(self.botaoenviar)
+                self.botaoenviar2.unbind(on_release=self.on_button_release)
+                self.ids.nome_novo.remove_widget(self.caixa_texto)
+                self.ids.nome_novo.remove_widget(self.botaoenviar2)
+                self.ids.nome_novo.remove_widget(self.caixa_nome_novo)
                 return True
         return False
 
     def Editar_nome_aluno(self):
         self.nome_antigo = self.ids.nome_turma.text + '.txt'
         if self.nome_antigo != '.txt':
-            self.AddWidgetaluno()
-    
+            self.boxt = BoxLayout()
+            self.caixa_texto = TextInput(hint_text='Digite o número do aluno',
+                                         font_size=30,
+                                         size_hint=(1, None),
+                                         size=(0, 60),
+                                         multiline=False,
+                                         pos_hint={'center_x': 0.0, 'center_y': 1})
+            self.caixa_nome_novo = TextInput(hint_text='Digite o novo nome do aluno',
+                                             font_size=30,
+                                             size_hint=(1, None),
+                                             size=(0, 60),
+                                             multiline=False,
+                                             pos_hint={'center_x': 0.0, 'center_y': 1})
+            self.botaoenviar2 = BotaoVoltar(size_hint=(None, None),
+                                            size=(80, 60),
+                                            img='Enviar.png',
+                                            pos_hint={'center_x': 0.0, 'center_y': 1})
+            self.ids.nome_novo.add_widget(self.caixa_texto)
+            self.ids.nome_novo.add_widget(self.caixa_nome_novo)
+            self.ids.nome_novo.add_widget(self.botaoenviar2)
+            self.botaoenviar2.bind(on_release=self.numero_aluno)
 
-class Editar_Turma(Screen):
-    pass
-
-
-class Editar_Aluno(Screen):
-    pass
+    def numero_aluno(self, instance):
+        turma = self.ids.nome_turma.text
+        numero = self.caixa_texto.text
+        novo_nome = self.caixa_nome_novo.text
+        diretorio_atual = os.getcwd()
+        caminho_arquivo = os.path.join(diretorio_atual, turma + '.txt')
+        encontrado = False
+        if os.path.isfile(caminho_arquivo):
+            with open(caminho_arquivo, 'r', encoding='utf-8') as arquivo:
+                turma_consulta = arquivo.readlines()
+            for i, linha in enumerate(turma_consulta):
+                aluno_numero, nome = linha.strip().split('-', 1)
+                if aluno_numero == numero:
+                    turma_consulta[i] = f"{numero}-{novo_nome}\n"
+                    encontrado = True
+            if encontrado:
+                with open(caminho_arquivo, 'w', encoding='utf-8') as arquivo:
+                    arquivo.writelines(turma_consulta)
 
 class AddNotas(Screen):
     def __init__(self, **kwargs):
