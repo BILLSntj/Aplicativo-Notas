@@ -91,6 +91,7 @@ class NovaTurma(Screen):
         self.turma_salva = '0'
         self.number_alunos = 0
         self.c = 0
+        
 
     def on_pre_enter(self):
         Window.bind(on_keyboard=self.voltar)
@@ -132,8 +133,11 @@ class NovaTurma(Screen):
             self.ids.alunos.focus = True
             Window.unbind(on_keyboard=self.confirma)
             Window.bind(on_keyboard=self.confirma_alunos)
-            open(turma + '.txt', "w")
-            self.turma_salva = turma
+            diretorio_atual = os.path.dirname(os.path.abspath(__file__))
+            self.turma_salva = turma + '.txt'
+            self.caminho_completo = os.path.join(diretorio_atual, self.turma_salva)
+            open(self.caminho_completo, "w")
+            
         if number_alunos != '':
             self.ids.alunos.text = ''
             self.ids.alunos.hint_text = 'Enviado'
@@ -150,7 +154,7 @@ class NovaTurma(Screen):
             self.ids.nomes.hint_text = f'Digite o nome do {
                 self.c+1}° aluno da chamada'
             self.ids.nomes.focus = True
-            with open(self.turma_salva + '.txt', 'a', encoding='utf-8') as arquivo:
+            with open(self.caminho_completo, 'a', encoding='utf-8') as arquivo:
                 arquivo.write(str(self.c) + '-' + nomes + '\n')
         if self.c == self.number_alunos:
             self.ids.nomes.text = ''
@@ -344,10 +348,18 @@ class AddNotas(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.c = 1
+        self.verifica = 1
+        self.cont = 0
+        self.cont1 = 0
         self.valorquestao = list()
+        self.dicionario = {}
+        self.nota = list()
     def VerificaTurma(self):
         self.turma = self.ids.notas_turma.text
-        diretorio_atual = os.getcwd()
+        diretorio_atual = os.path.dirname(os.path.abspath(__file__))
+        # Muda o diretório de trabalho para o diretório do arquivo
+        os.chdir(diretorio_atual)
+        # Verifica se o diretório foi mudado corretamente
         caminho_arquivo = os.path.join(diretorio_atual, self.turma+'.txt')
         if os.path.isfile(caminho_arquivo):
             self.ids.bimestre.focus = True
@@ -436,7 +448,8 @@ class AddNotas(Screen):
             self.ids.number_question.text = ''
             self.ids.number_question.hint_text = 'Enviado'
             Window.unbind(on_keyboard = self.ConfirmaQuestao)
-            Window.bind(on_keyboard = self.ConfirmaValor)
+            Window.bind(on_keyboard=self.ConfirmaValor)
+            
             self.Widgets()
         else:
             self.AtencaoQuestao()
@@ -459,15 +472,114 @@ class AddNotas(Screen):
     
     def SalvarValores(self, *args):
         self.c +=1
-        valor = self.boxtext.text
+        valor = float(self.boxtext.text)
         if valor != '' and valor !=0:
-            self.boxtext.hint_text = f'Digite o valor da {self.c} questão'
+            self.boxtext.hint_text = f'Digite o valor da {self.c}° questão'
             self.boxtext.text = ''
             self.boxtext.focus = True
             self.valorquestao.append(valor)
         if self.c-1 == self.numero:
             self.boxtext.text = ''
             self.boxtext.hint_text = 'Enviado'
+            Window.unbind(on_keyboard = self.ConfirmaValor)
+            Window.bind(on_keyboard=self.ConfirmaNotas)
+            self.PerguntaNotas()
+
+    def PerguntaNotas(self, *args):
+        self.boxpergunta = BoxLayout(padding = (60,0,60,0))
+        with open(self.turma+'.txt','r') as arquivo:
+            nomes = arquivo.readlines()
+        for nome in nomes:
+            if '1-' in nome:
+                num,name = nome.split('-',1)
+        print(name)
+        self.perguntanota = TextInput(hint_text = f'Digite a nota da 1° questão de {name}',
+                                 font_size = 30,
+                                 size_hint= (1, None),
+                                 multiline = False,
+                                 height= 60)
+        self.botaopergunta = BotaoVoltar(img = 'Enviar.png',
+                                    size_hint= (None, None),
+                                    size = (80,60),
+                                    on_release = self.CalculaNotas)
+        self.boxpergunta.add_widget(self.perguntanota)
+        self.boxpergunta.add_widget(self.botaopergunta)
+        self.perguntanota.focus = True
+        self.ids.addnotas.add_widget(self.boxpergunta)
+    
+    def CalculaNotas(self, *args):
+        self.cont +=1
+        self.cont1 +=1
+        arquivo = self.turma+'.txt'
+        #Verificador se já foi digitado o número fornecido pelo usuário 
+        if self.cont1 >= self.numero:
+            self.verifica += 1
+            self.cont1 = 0
+        #Lê o arquivo em que contêm a turma
+        with open(arquivo, 'r') as f:
+            turma = f.readlines()
+        #Recebe as notas digitadas
+        self.nota.append(float(self.perguntanota.text))
+        #Faz com que o número máximo de número de chamada seja do tamanho do arquivo
+        if self.verifica > len(turma):
+            self.verifica = len(turma)
+
+        name = None
+        #Procura no arquivo turma o portador do númera da chamada atual
+        for c1 in turma:
+            if str(self.verifica)+'-' in c1:
+                num,name = c1.split('-',1)
+        #verifica se existe um nome do aluno
+        if name is not None:
+            self.perguntanota.text = ''
+            self.perguntanota.hint_text = f'Digite a nota da {self.cont1+1}° questão de {name}'
+            self.perguntanota.focus = True
+        else:
+            self.perguntanota.text = ''
+            self.perguntanota.hint_text = 'Enviado'
+        #Chama a função que vai inserir as notas no arquivo
+        if self.cont >= self.numero*len(turma):
+            self.Arquivo_for_dicionario(arquivo = arquivo, nota=self.nota)
+        
+    def Arquivo_for_dicionario(self, arquivo, nota, *args):
+        # lendo o arquivo turma
+        with open(arquivo, 'r') as f:
+            turma = f.readlines()
+        aluno = {}
+        for id in turma:
+            notas = list()
+            # Sepera número da chamada e nome do aluno
+            num, name = id.split('-',1)
+            # Adiciona o nome e número da chamada em um dicionário
+            aluno["numero da chamada"] = num
+            aluno["nome"] = str(name[:-1])
+            for c in range(0, self.numero):
+                notas.append(nota[c])
+                aluno[f"nota {c+1}"] = nota[c]
+            del nota[0:self.numero]
+            nota_final = sum(notas)
+            aluno["Nota Final"] = nota_final
+            #Faz um dicionário do dicionário aluno
+            self.dicionario[str(num)] = aluno.copy()
+        #Apaga o Arquivo
+        with open(arquivo, 'w', encoding='utf-8') as ap:
+            ap.write('')
+        #Percorre co dicinário
+        for c in range(0,len(self.dicionario)):
+            cha_name = self.dicionario.get(f"{c+1}", {}).get("numero da chamada") + '-' + self.dicionario.get(f"{c+1}", {}).get("nome")
+            #Escreve o número da chamada e o nome do aluno
+            with open(arquivo,'a', encoding='utf-8') as r:
+                r.write(cha_name + '\n')
+            #Percorre o número de questão
+            for c1 in range(0,self.numero):
+                notas = f'Nota {c1+1}: {self.dicionario.get(f"{c+1}", {}).get(f"nota {c1+1}")}'
+                #Adiciona as notas no arquivo
+                with open(arquivo, 'a', encoding='utf-8') as n:
+                    n.write(notas+'\n')
+            n_final = f'Nota Final: {self.dicionario.get(f"{c+1}", {}).get("Nota Final")}'
+            #Adiciona a nota final no arquivo
+            with open(arquivo, 'a', encoding='utf-8') as nf:
+                nf.write(n_final+'\n')
 
     def AtencaoQuestao(self, *args):
         box = BoxLayout(orientation= 'vertical',
@@ -512,6 +624,7 @@ class AddNotas(Screen):
         self.pop.dismiss()
 
     def on_pre_enter(self):
+        self.cont = 0
         Window.bind(on_keyboard=self.voltar)
         Window.bind(on_keyboard = self.confirma)
         self.ids.notas_turma.focus = True
@@ -531,25 +644,45 @@ class AddNotas(Screen):
 
     def ConfirmaQuestao(self, window, key, *args):
         if key == 13:
-            self.ids.enviarquestao.trigger_action(duration=0.1)
+            self.ids.enviarquestao.trigger_action(duration=0.01)
 
     def ConfirmaValor(self, window, key, *args):
         if key == 13:
             self.botaoenviar.trigger_action(duration=0.1)
     
+    def ConfirmaNotas(self, window, key, *args):
+        if key == 13:
+            self.botaopergunta.trigger_action(duration=0.1)
+    
     def on_pre_leave(self):
         self.c = 0
+        self.valorquestao = list()
+        self.notas = list()
         Window.unbind(on_keyboard=self.voltar)
         Window.unbind(on_keyboard=self.confirma)
         Window.unbind(on_keyboard=self.ConfirmaBimestre)
         Window.unbind(on_keyboard=self.ConfirmaQuestao)
+        Window.unbind(on_keyboard=self.ConfirmaValor)
+        Window.unbind(on_keyboard=self.ConfirmaNotas)
         self.ids.notas_turma.text = ''
         self.ids.notas_turma.hint_text = 'Digite o nome da turma'
         self.ids.bimestre.text = ''
         self.ids.bimestre.hint_text = 'Digite o bismestre'
         self.ids.number_question.text = ''
         self.ids.number_question.hint_text = 'Digite número de questões da prova'
-        self.ids.addnotas.remove_widget(self.box)
+        if self.is_layout_in_layout(self.ids.addnotas, self.box):
+            self.ids.addnotas.remove_widget(self.box)
+        if self.is_layout_in_layout(self.ids.addnotas, self.boxpergunta):
+            self.ids.addnotas.remove_widget(self.boxpergunta)
+        
+    def is_layout_in_layout(self, parent_layout, target_layout):
+        if target_layout in parent_layout.children:
+            return True
+        for child in parent_layout.children:
+            if isinstance(child, BoxLayout):
+                if self.is_layout_in_layout(child, target_layout):
+                    return True
+        return False
 
 class Aplicativo(App):
     def build(self):
